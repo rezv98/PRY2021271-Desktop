@@ -126,6 +126,9 @@
   <data name="traymenu.Exit" xml:space="preserve">
     <value>E&amp;xit</value>
   </data>
+  <data name="traymenu.History" xml:space="preserve">
+    <value>&amp;History</value>
+  </data>
   <data name="traymenu.RegisterActivity" xml:space="preserve">
     <value>&amp;RegisterActivity</value>
   </data>

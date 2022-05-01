@@ -3,10 +3,12 @@ using System.Net;
 using System.Threading;
 using System.Windows.Forms;
 using ActivityMonitor.ApplicationMonitor;
+using ActivityMonitor.ApplicationImp.HistoryModels;
 using ActMon.Database;
 using ActMon.Forms;
 using ActMon.Properties;
 using Microsoft.Win32;
+using System.Collections.Generic;
 
 namespace ActMon
 {
@@ -58,6 +60,7 @@ namespace ActMon
         //TODO: Refactor this
         private bool _dialogActive;
         private bool _registerActivityActive;
+        private bool _historyActive;
         private bool _settingsActive;
 
         private FormActivity fStats;
@@ -75,16 +78,19 @@ namespace ActMon
                 //Build Menu
                 ContextMenu mnu = new ContextMenu();
 
-                mnu.MenuItems.Add(new MenuItem(ResFiles.GlobalRes.traymenu_Activity, OpenStats));
+                //mnu.MenuItems.Add(new MenuItem(ResFiles.GlobalRes.traymenu_Activity, OpenStats));
 
                 //if (!AppSettings.LockSettings)
                 //    mnu.MenuItems.Add(new MenuItem(ResFiles.GlobalRes.traymenu_Settings, OpenSettings));
 
                 if (!AppSettings.HideMenuExit)
+                {
                     mnu.MenuItems.Add(new MenuItem(ResFiles.GlobalRes.traymenu_RegisterActivity, OpenRegisterActivity));
+                    //mnu.MenuItems.Add(new MenuItem(ResFiles.GlobalRes.traymenu_History, OpenHistory));
                     mnu.MenuItems.Add(new MenuItem(ResFiles.GlobalRes.traymenu_Exit, Exit));
 
                     //mnu.MenuItems.Add(new MenuItem(ResFiles.GlobalRes.traymenu_About, About));
+                }
 
 
                 trayIcon = new NotifyIcon()
@@ -94,7 +100,7 @@ namespace ActMon
                     Visible = true
                 };
 
-                trayIcon.DoubleClick += new System.EventHandler(OpenStats);
+                trayIcon.DoubleClick += new System.EventHandler(OpenRegisterActivity);
                 AppDomain.CurrentDomain.ProcessExit += new System.EventHandler(Exit);
             }
 
@@ -110,6 +116,46 @@ namespace ActMon
             //TODO: Start DB dumper anyway
             if (setDBConfig())
                 DBDumper.Start();
+        }
+
+        private void GetHistory()
+        {
+            //Obtener de chrome
+            ChromeHistory chrome = new ChromeHistory();
+
+            var browserList = new List<Browser>
+            {
+                new Browser() { Name = "Chrome", DataTable = chrome.GetDataTable() },
+
+            };
+
+            foreach (var browser in browserList)
+            {
+                if (browser.DataTable != null)
+                {
+                    // rows that contains all information about the browser history
+                    foreach (dynamic row in browser.DataTable.Rows)
+                    {
+                        var request = new UrlRequest
+                        {
+                            Browser = browser.Name,
+                            Url = row[0],
+                            Title = row[1],
+                            Time = row[2],
+                            Date = row[3]
+                        };
+                        //try
+                        //{
+                        //    var urlService = new UrlService();
+                        //    await urlService.SendUrl(request);
+                        //}
+                        //catch (Exception ex)
+                        //{
+                        //    Console.WriteLine(ex.Message);
+                        //}
+                    }
+                }
+            }
         }
 
         private bool setDBConfig()
@@ -148,10 +194,21 @@ namespace ActMon
         {
             if (!_registerActivityActive)
             {
-                FormRegisterActivity fAbout = new FormRegisterActivity(appMon);
+                FormRegisterActivity formRegisterActivity = new FormRegisterActivity(appMon);
                 _registerActivityActive = true;
-                fAbout.ShowDialog();
+                formRegisterActivity.ShowDialog();
                 _registerActivityActive = false;
+            }
+        }
+        
+        void OpenHistory(Object sender, EventArgs e)
+        {
+            if (!_historyActive)
+            {
+                FormHistory formHistory = new FormHistory();
+                _historyActive = true;
+                formHistory.ShowDialog();
+                _historyActive = false;
             }
         }
         void OpenStats(Object sender, EventArgs e)

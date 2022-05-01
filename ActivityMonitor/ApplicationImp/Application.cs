@@ -7,8 +7,6 @@ using System.IO;
 
 namespace ActivityMonitor.Application
 {
-   
-
     public class Application : IApplication, INotifyPropertyChanged
     {
         private string _path;

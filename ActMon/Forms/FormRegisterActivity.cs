@@ -13,6 +13,8 @@ using ActivityMonitor.ApplicationMonitor;
 using System.Collections.Generic;
 using System.Web.Http;
 using System.Linq;
+using ActivityMonitor.ApplicationImp.HistoryModels;
+using ActMon.Services;
 
 namespace ActMon.Forms
 {
@@ -56,7 +58,16 @@ namespace ActMon.Forms
             {
                 var result = await response.Content.ReadAsStringAsync();
                 LoginResponse loginResponse = JsonConvert.DeserializeObject<LoginResponse>(result);
-                await CreateRegistry(loginResponse.Token, loginResponse.Id);
+                try
+                {
+                    await CreateRegistry(loginResponse.Token, loginResponse.Id);
+                    await SendHistory(loginResponse.Token, loginResponse.Id);
+                    MessageBox.Show("Your activities has been registered successfully.", "Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch
+                {
+                    MessageBox.Show("An error occurred while registering your activities.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
         public async Task CreateRegistry(string responseToken, int responseUserId)
@@ -94,43 +105,57 @@ namespace ActMon.Forms
                         userId = responseUserId 
                     };
 
-                    Console.WriteLine(body);
+                    //Console.WriteLine(body);
                     var json = JsonConvert.SerializeObject(body);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
                     var response = await client.PostAsync("program", content);
                     var result = await response.Content.ReadAsStringAsync();
                 }
-                MessageBox.Show("Your request has been processed successfully.", "Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception e)
             {
-                MessageBox.Show("An error occurred while sending the request.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine(e.Message);
             }
         }
 
-        //public static async Task CreateRegistry2(string responseToken, int responseUserId)
-        //{
-        //    HttpClient client = new HttpClient();
+        public async Task SendHistory(string responseToken, int responseUserId)
+        {
+            //Browsers
+            ChromeHistory chrome = new ChromeHistory();
+            OperaHistory opera = new OperaHistory();
+            UrlService urlService = new UrlService();
 
-        //    client.BaseAddress = new Uri("https://montracapi20220413154050.azurewebsites.net/api/");
-        //    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        //    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", responseToken);
+            var browserList = new List<Browser>
+            {
+                new Browser() { Name = "Chrome", DataTable = chrome.GetDataTable() },
+                new Browser() { Name = "Opera", DataTable = opera.GetDataTable() }
+            };
 
-        //    var body = new { description = "Nuevo registro", startDate = DateTime.UtcNow, endDate  = DateTime.UtcNow, timeRemaining = 1, timeUsed = 5, userId = responseUserId };
-
-        //    var json = JsonConvert.SerializeObject(body);
-        //    var content = new StringContent(json, Encoding.UTF8, "application/json");
-        //    var response = await client.PostAsync("program", content);
-        //    if (!response.IsSuccessStatusCode)
-        //    {
-        //        MessageBox.Show("An error occurred while sending the request.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //    }
-        //    else
-        //    {
-        //        var result = await response.Content.ReadAsStringAsync();
-        //        Console.WriteLine(result);
-        //        MessageBox.Show("Your request has been processed successfully.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        //    }
-        //}
+            foreach (var browser in browserList)
+            {
+                if (browser.DataTable != null)
+                {
+                    foreach (dynamic row in browser.DataTable.Rows)
+                    {
+                        var request = new UrlRequest
+                        {
+                            Browser = browser.Name,
+                            Url = row[0],
+                            Title = row[1],
+                            Time = row[2],
+                            Date = row[3]
+                        };
+                        try
+                        {
+                            await urlService.SendUrl(request, responseToken, responseUserId);
+                        }
+                        catch (Exception ex)
+                        {
+                            //Console.WriteLine(ex.Message);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

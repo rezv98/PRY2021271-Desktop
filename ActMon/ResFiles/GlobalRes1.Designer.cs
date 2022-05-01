@@ -88,6 +88,15 @@ namespace ActMon.ResFiles {
         }
         
         /// <summary>
+        ///   Busca una cadena traducida similar a &amp;History.
+        /// </summary>
+        internal static string traymenu_History {
+            get {
+                return ResourceManager.GetString("traymenu.History", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Busca una cadena traducida similar a &amp;RegisterActivity.
         /// </summary>
         internal static string traymenu_RegisterActivity {

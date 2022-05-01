@@ -32,10 +32,10 @@
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.gBUser = new System.Windows.Forms.GroupBox();
-            this.emailLabel = new System.Windows.Forms.Label();
-            this.passwordLabel = new System.Windows.Forms.Label();
-            this.emailText = new System.Windows.Forms.TextBox();
             this.passwordText = new System.Windows.Forms.TextBox();
+            this.emailText = new System.Windows.Forms.TextBox();
+            this.passwordLabel = new System.Windows.Forms.Label();
+            this.emailLabel = new System.Windows.Forms.Label();
             this.gBUser.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -64,25 +64,25 @@
             this.gBUser.Name = "gBUser";
             this.gBUser.TabStop = false;
             // 
-            // emailLabel
+            // passwordText
             // 
-            resources.ApplyResources(this.emailLabel, "emailLabel");
-            this.emailLabel.Name = "emailLabel";
-            // 
-            // passwordLabel
-            // 
-            resources.ApplyResources(this.passwordLabel, "passwordLabel");
-            this.passwordLabel.Name = "passwordLabel";
+            resources.ApplyResources(this.passwordText, "passwordText");
+            this.passwordText.Name = "passwordText";
             // 
             // emailText
             // 
             resources.ApplyResources(this.emailText, "emailText");
             this.emailText.Name = "emailText";
             // 
-            // passwordText
+            // passwordLabel
             // 
-            resources.ApplyResources(this.passwordText, "passwordText");
-            this.passwordText.Name = "passwordText";
+            resources.ApplyResources(this.passwordLabel, "passwordLabel");
+            this.passwordLabel.Name = "passwordLabel";
+            // 
+            // emailLabel
+            // 
+            resources.ApplyResources(this.emailLabel, "emailLabel");
+            this.emailLabel.Name = "emailLabel";
             // 
             // FormRegisterActivity
             // 
