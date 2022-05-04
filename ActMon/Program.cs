@@ -9,6 +9,10 @@ using ActMon.Forms;
 using ActMon.Properties;
 using Microsoft.Win32;
 using System.Collections.Generic;
+using System.IO;
+using System.Drawing.Imaging;
+using System.Drawing;
+using ActivityMonitor.ApplicationImp.ScreenshotModel;
 
 namespace ActMon
 {
@@ -18,13 +22,13 @@ namespace ActMon
         /// Punto di ingresso principale dell'applicazione.
         /// </summary>
         private static AppTrayIconContext TrayIcon;
-        
+
         [STAThread]
         static void Main()
         {
             //Check if running other instances of application for the same user
             String mutexName = "ActMon" + System.Security.Principal.WindowsIdentity.GetCurrent().User.AccountDomainSid;
-            Boolean createdNew;            
+            Boolean createdNew;
 
             Mutex mutex = new Mutex(true, mutexName, out createdNew);
 
@@ -35,7 +39,7 @@ namespace ActMon
 
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                
+
                 TrayIcon = new AppTrayIconContext();
                 Application.Run(TrayIcon);
                 Application.ApplicationExit += new System.EventHandler(AppExit);
@@ -56,7 +60,7 @@ namespace ActMon
         private DataDumper DBDumper;
         private DB Database;
         private SettingsManager.Settings AppSettings;
-        
+
         //TODO: Refactor this
         private bool _dialogActive;
         private bool _registerActivityActive;
@@ -64,7 +68,7 @@ namespace ActMon
         private bool _settingsActive;
 
         private FormActivity fStats;
-        
+
         public AppTrayIconContext()
         {
             //Initialize Objects
@@ -92,7 +96,6 @@ namespace ActMon
                     //mnu.MenuItems.Add(new MenuItem(ResFiles.GlobalRes.traymenu_About, About));
                 }
 
-
                 trayIcon = new NotifyIcon()
                 {
                     Icon = Resources.ClockIcon,
@@ -100,8 +103,8 @@ namespace ActMon
                     Visible = true
                 };
 
-                trayIcon.DoubleClick += new System.EventHandler(OpenRegisterActivity);
-                AppDomain.CurrentDomain.ProcessExit += new System.EventHandler(Exit);
+                trayIcon.DoubleClick += new EventHandler(OpenRegisterActivity);
+                AppDomain.CurrentDomain.ProcessExit += new EventHandler(Exit);
             }
 
             usrSession = new UserSession();
@@ -116,46 +119,6 @@ namespace ActMon
             //TODO: Start DB dumper anyway
             if (setDBConfig())
                 DBDumper.Start();
-        }
-
-        private void GetHistory()
-        {
-            //Obtener de chrome
-            ChromeHistory chrome = new ChromeHistory();
-
-            var browserList = new List<Browser>
-            {
-                new Browser() { Name = "Chrome", DataTable = chrome.GetDataTable() },
-
-            };
-
-            foreach (var browser in browserList)
-            {
-                if (browser.DataTable != null)
-                {
-                    // rows that contains all information about the browser history
-                    foreach (dynamic row in browser.DataTable.Rows)
-                    {
-                        var request = new UrlRequest
-                        {
-                            Browser = browser.Name,
-                            Url = row[0],
-                            Title = row[1],
-                            Time = row[2],
-                            Date = row[3]
-                        };
-                        //try
-                        //{
-                        //    var urlService = new UrlService();
-                        //    await urlService.SendUrl(request);
-                        //}
-                        //catch (Exception ex)
-                        //{
-                        //    Console.WriteLine(ex.Message);
-                        //}
-                    }
-                }
-            }
         }
 
         private bool setDBConfig()
@@ -182,7 +145,8 @@ namespace ActMon
 
         void OpenSettings(Object sender, EventArgs e)
         {
-            if (!_settingsActive) { 
+            if (!_settingsActive)
+            {
                 Form fs = new Forms.FormSettings(AppSettings);
                 _settingsActive = true;
                 fs.ShowDialog();
@@ -200,7 +164,7 @@ namespace ActMon
                 _registerActivityActive = false;
             }
         }
-        
+
         void OpenHistory(Object sender, EventArgs e)
         {
             if (!_historyActive)
@@ -213,17 +177,18 @@ namespace ActMon
         }
         void OpenStats(Object sender, EventArgs e)
         {
-            if (!_dialogActive) { 
+            if (!_dialogActive)
+            {
                 fStats = new Forms.FormActivity(appMon);
                 _dialogActive = true;
                 fStats.ShowDialog();
                 fStats.Dispose();
                 _dialogActive = false;
-            } else
+            }
+            else
             {
                 fStats.Restore();
             }
         }
     }
-
 }
