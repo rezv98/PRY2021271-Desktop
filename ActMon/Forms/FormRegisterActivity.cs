@@ -14,7 +14,6 @@ using System.Collections.Generic;
 using System.Web.Http;
 using System.Linq;
 using ActivityMonitor.ApplicationImp.HistoryModels;
-using ActMon.Services;
 using Azure.Storage.Blobs;
 using System.IO;
 using ActivityMonitor.ApplicationImp.ScreenshotModels;

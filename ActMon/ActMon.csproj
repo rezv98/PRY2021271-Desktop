@@ -234,10 +234,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>GlobalRes.resx</DependentUpon>
     </Compile>
-    <Compile Include="Services\Interfaces\IScreenshotService.cs" />
-    <Compile Include="Services\Interfaces\IUrlService.cs" />
-    <Compile Include="Services\ScreenshotService.cs" />
-    <Compile Include="Services\UrlService.cs" />
     <Compile Include="SettingsManager\Settings.cs" />
     <EmbeddedResource Include="Forms\ApplicationView.resx">
       <DependentUpon>ApplicationView.cs</DependentUpon>
