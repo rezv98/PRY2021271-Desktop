@@ -178,6 +178,7 @@
     <Compile Include="ApplicationImp\ApplicationUsages.cs" />
     <Compile Include="Abstract\IApplication.cs" />
     <Compile Include="Abstract\IApplicationUsage.cs" />
+    <Compile Include="ApplicationImp\Global.cs" />
     <Compile Include="ApplicationImp\HistoryModels\Browser.cs" />
     <Compile Include="ApplicationImp\HistoryModels\ChromeHistory.cs" />
     <Compile Include="ApplicationImp\HistoryModels\Historial.cs" />

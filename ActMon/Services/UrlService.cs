@@ -1,4 +1,5 @@
-﻿using ActivityMonitor.ApplicationImp.HistoryModels;
+﻿using ActivityMonitor.ApplicationImp;
+using ActivityMonitor.ApplicationImp.HistoryModels;
 using ActMon.Services.Interfaces;
 using Newtonsoft.Json;
 using System;
@@ -25,7 +26,7 @@ namespace ActMon.Services
                 request.UserId = userId;
 
                 HttpClient client = new HttpClient();
-                client.BaseAddress = new Uri("https://montracapi20220413154050.azurewebsites.net/api/");
+                client.BaseAddress = new Uri(Global.apiUrl);
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 

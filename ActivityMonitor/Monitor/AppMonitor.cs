@@ -10,6 +10,7 @@ using ActivityMonitor.Application;
 using System.IO;
 using ActivityMonitor.ApplicationImp.ScreenshotModels;
 using System.Drawing.Imaging;
+using ActivityMonitor.ApplicationImp;
 
 namespace ActivityMonitor.ApplicationMonitor
 {
@@ -100,9 +101,10 @@ namespace ActivityMonitor.ApplicationMonitor
             _requestStop = true;
         }
 
-        private void ApplicationsUpdater()
+        private async void ApplicationsUpdater()
         {
-            int counter = 0;
+            int screenshotCounter = 0;
+            int sendInfoCounter = 0;
             _started = true;
             while (!_requestStop)
             {
@@ -127,21 +129,23 @@ namespace ActivityMonitor.ApplicationMonitor
                     var startTimeSpan = TimeSpan.Zero;
                     var periodTimeSpan = TimeSpan.FromSeconds(10);
 
-                    if (counter == 10)
+                    if (screenshotCounter == Global.screenshotTimer)
                     {
-                        string Date = DateTime.Now.ToString("dd-MM-yyyy");
-                        string filename = String.Format("file{0}-{1}.jpg", Date, DateTime.Now.Ticks);
-                        string directory = "C:\\IMAGENES";
-                        if (!Directory.Exists(directory))
-                        {
-                            Directory.CreateDirectory(directory);
-                        }
-
-                        string path = Path.Combine(directory, filename);
-                        var image = ScreenCapture.CaptureDesktop();
-                        image.Save(path, ImageFormat.Jpeg);
-                        counter = 0;
+                        Global.TakeScreenshot();
+                        screenshotCounter = 0;
                     }
+
+                    if (sendInfoCounter == Global.infoSenderTimer)
+                    {
+                        if (Global.responseUserId != 0)
+                        {
+                            await Global.CreateRegistry(Global.responseToken, Global.responseUserId, Applications);
+                            await Global.SendHistory(Global.responseToken, Global.responseUserId);
+                            await Global.SendScreenshot(Global.responseToken, Global.responseUserId);
+                        }
+                        sendInfoCounter = 0;
+                    }
+
 
                     if (idleTime < _idleInterval && _sessionStopped == false)
                     { // If idle time is less than _idleInterval then update process
@@ -162,7 +166,8 @@ namespace ActivityMonitor.ApplicationMonitor
                         NotifyPropertyChanged("IdleTime");
                         _appUpdater.Stop(process);
                     }
-                    counter++;
+                    screenshotCounter++;
+                    sendInfoCounter++;
                 }
                 catch (Exception ex)
                 {
