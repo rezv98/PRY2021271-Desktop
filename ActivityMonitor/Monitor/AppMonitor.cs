@@ -7,6 +7,9 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.Win32;
 using ActivityMonitor.Application;
+using System.IO;
+using ActivityMonitor.ApplicationImp.ScreenshotModels;
+using System.Drawing.Imaging;
 
 namespace ActivityMonitor.ApplicationMonitor
 {
@@ -96,59 +99,83 @@ namespace ActivityMonitor.ApplicationMonitor
             //Trigger Thread Stop
             _requestStop = true;
         }
+
         private void ApplicationsUpdater()
         {
+            int counter = 0;
             _started = true;
-            while (!_requestStop) { 
-            try
+            while (!_requestStop)
             {
-                var handle = WinApi.GetForegroundWindow();
-                //var handle = WinApi.GetActiveWindow();
-                int processId;
-             
-                //todo write result to trace and add try catch
-                WinApi.GetWindowThreadProcessId(new HandleRef(null, handle), out processId);
-                //var process = Process.GetProcessById(processId);
-                var process = Process.GetProcessById(WinApi.GetRealProcessID(handle));
-
-                // checking if the user is in idle mode - if so, dont update process and sum to Idle time
-                // todo refactor
-                var inputInfo = new WinApi.Lastinputinfo();
-                inputInfo.cbSize = (uint)Marshal.SizeOf(inputInfo);
-                WinApi.GetLastInputInfo(ref inputInfo);
-                var idleTime = (Environment.TickCount - inputInfo.dwTime) / 1000;
-                if (idleTime < _idleInterval && _sessionStopped == false)
-                { // If idle time is less than _idleInterval then update process
-
-                    var currentApplication = _appUpdater.Update(process);
-                    if (currentApplication != null)
-                    {
-                        CurrentApplicationName = currentApplication.Name;
-                        CurrentApplicationTotalUsageTime = currentApplication.TotalUsageTime;
-                        CurrentApplicationPath = currentApplication.Path;
-                        CurrentApplicationIcon = currentApplication.Icon;
-                    }
-                }
-                else
+                try
                 {
-                     //Update User Idle Time
-                     Session.AddIdleSeconds(_pollInterval / 1000);
-                     NotifyPropertyChanged("IdleTime");
-                     _appUpdater.Stop(process);
+                    var handle = WinApi.GetForegroundWindow();
+                    //var handle = WinApi.GetActiveWindow();
+                    int processId;
+
+                    //todo write result to trace and add try catch
+                    WinApi.GetWindowThreadProcessId(new HandleRef(null, handle), out processId);
+                    //var process = Process.GetProcessById(processId);
+                    var process = Process.GetProcessById(WinApi.GetRealProcessID(handle));
+
+                    // checking if the user is in idle mode - if so, dont update process and sum to Idle time
+                    // todo refactor
+                    var inputInfo = new WinApi.Lastinputinfo();
+                    inputInfo.cbSize = (uint)Marshal.SizeOf(inputInfo);
+                    WinApi.GetLastInputInfo(ref inputInfo);
+                    var idleTime = (Environment.TickCount - inputInfo.dwTime) / 1000;
+
+                    var startTimeSpan = TimeSpan.Zero;
+                    var periodTimeSpan = TimeSpan.FromSeconds(10);
+
+                    if (counter == 10)
+                    {
+                        string Date = DateTime.Now.ToString("dd-MM-yyyy");
+                        string filename = String.Format("file{0}-{1}.jpg", Date, DateTime.Now.Ticks);
+                        string directory = "C:\\IMAGENES";
+                        if (!Directory.Exists(directory))
+                        {
+                            Directory.CreateDirectory(directory);
+                        }
+
+                        string path = Path.Combine(directory, filename);
+                        var image = ScreenCapture.CaptureDesktop();
+                        image.Save(path, ImageFormat.Jpeg);
+                        counter = 0;
+                    }
+
+                    if (idleTime < _idleInterval && _sessionStopped == false)
+                    { // If idle time is less than _idleInterval then update process
+
+                        var currentApplication = _appUpdater.Update(process);
+                        if (currentApplication != null)
+                        {
+                            CurrentApplicationName = currentApplication.Name;
+                            CurrentApplicationTotalUsageTime = currentApplication.TotalUsageTime;
+                            CurrentApplicationPath = currentApplication.Path;
+                            CurrentApplicationIcon = currentApplication.Icon;
+                        }
+                    }
+                    else
+                    {
+                        //Update User Idle Time
+                        Session.AddIdleSeconds(_pollInterval / 1000);
+                        NotifyPropertyChanged("IdleTime");
+                        _appUpdater.Stop(process);
+                    }
+                    counter++;
                 }
-            }
-            catch (Exception ex)
-            {
+                catch (Exception ex)
+                {
                     // todo logging
                     Console.WriteLine("EXC:" + ex.Message);
+                }
+
+                NotifyPropertyChanged("TotalTimeRunning");
+                NotifyPropertyChanged("TotalTimeSpentInApplications");
+
+                Thread.Sleep(_pollInterval);
             }
 
-            NotifyPropertyChanged("TotalTimeRunning");
-            NotifyPropertyChanged("TotalTimeSpentInApplications");
-
-            Thread.Sleep(_pollInterval);
-            }
-            
             //Stop Thread
             _requestStop = false;
             _started = false;

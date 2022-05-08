@@ -15,6 +15,9 @@ using System.Web.Http;
 using System.Linq;
 using ActivityMonitor.ApplicationImp.HistoryModels;
 using ActMon.Services;
+using Azure.Storage.Blobs;
+using System.IO;
+using ActivityMonitor.ApplicationImp.ScreenshotModels;
 
 namespace ActMon.Forms
 {
@@ -62,6 +65,7 @@ namespace ActMon.Forms
                 {
                     await CreateRegistry(loginResponse.Token, loginResponse.Id);
                     await SendHistory(loginResponse.Token, loginResponse.Id);
+                    await SendScreenshot(loginResponse.Token, loginResponse.Id);
                     MessageBox.Show("Your activities has been registered successfully.", "Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch
@@ -155,6 +159,56 @@ namespace ActMon.Forms
                         }
                     }
                 }
+            }
+        }
+
+        public async Task SendScreenshot(string responseToken, int responseUserId)
+        {
+            var directory = Directory.GetFiles("C:\\IMAGENES", "*.*", SearchOption.AllDirectories);
+
+            foreach (var path in directory)
+            {
+                try
+                {
+                    var filename = path.Split('\\')[2];
+                    var blob = await UploadFile(filename, path);
+
+                    if (blob != null)
+                    {
+                        var request = new ScreenshotRequest()
+                        {
+                            Date = DateTime.Now.ToUniversalTime(),
+                            Name = filename,
+                            Blob = blob.ToString()
+                        };
+                        var urlService = new Screenshot();
+                        await urlService.SendScreenshot(request, responseToken, responseUserId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
+        public async Task<string> UploadFile(string filename, string path)
+        {
+            var blobStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=montracblobstorage;AccountKey=38jbNkUcrrfKlFWiEWBgVL3LuXRjumPkKQZZroJ7JSJo17TQgwbMDI3oOr5LwNMwrr9TxUtUtumD+AStBF/MNw==;EndpointSuffix=core.windows.net";
+            var blobStorageContainerName = "fileupload";
+            var container = new BlobContainerClient(blobStorageConnectionString, blobStorageContainerName);
+
+            var blob = container.GetBlobClient(filename);
+            var stream = File.OpenRead(path);
+            try
+            {
+                await blob.UploadAsync(stream);
+                return blob.Uri.AbsoluteUri;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return null;
             }
         }
     }
