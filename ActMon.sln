@@ -23,7 +23,7 @@ Global
 		{B1F7C3DB-FA75-43FC-8671-179F251F2FC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1F7C3DB-FA75-43FC-8671-179F251F2FC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1F7C3DB-FA75-43FC-8671-179F251F2FC4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{13803A0F-35E3-4268-BF29-C94B09DE1A84}.Debug|Any CPU.ActiveCfg = Debug
+		{13803A0F-35E3-4268-BF29-C94B09DE1A84}.Debug|Any CPU.ActiveCfg = Release
 		{13803A0F-35E3-4268-BF29-C94B09DE1A84}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution

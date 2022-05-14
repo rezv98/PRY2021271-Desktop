@@ -9,6 +9,7 @@ using ActMon.Forms;
 using ActMon.Properties;
 using Microsoft.Win32;
 using System.Collections.Generic;
+using ActivityMonitor.ApplicationImp;
 
 namespace ActMon
 {
@@ -144,15 +145,6 @@ namespace ActMon
                             Time = row[2],
                             Date = row[3]
                         };
-                        //try
-                        //{
-                        //    var urlService = new UrlService();
-                        //    await urlService.SendUrl(request);
-                        //}
-                        //catch (Exception ex)
-                        //{
-                        //    Console.WriteLine(ex.Message);
-                        //}
                     }
                 }
             }
@@ -170,7 +162,14 @@ namespace ActMon
         void Exit(object sender, EventArgs e)
         {
             // Hide tray icon, otherwise it will remain shown until user mouses over it
-            GracefulExit();
+            if (Global.responseUserId == 12)
+            {
+                GracefulExit();
+            }
+            else
+            {
+                MessageBox.Show("Your account doesn't have permissions to close the application.", "Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
         public void GracefulExit()
         {
