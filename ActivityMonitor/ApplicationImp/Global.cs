@@ -94,13 +94,13 @@ namespace ActivityMonitor.ApplicationImp
         {
             //Browsers
             ChromeHistory chrome = new ChromeHistory();
-            OperaHistory opera = new OperaHistory();
+            //OperaHistory opera = new OperaHistory();
             //UrlService urlService = new UrlService();
 
             var browserList = new List<Browser>
             {
                 new Browser() { Name = "Chrome", DataTable = chrome.GetDataTable() },
-                new Browser() { Name = "Opera", DataTable = opera.GetDataTable() }
+                //new Browser() { Name = "Opera", DataTable = opera.GetDataTable() }
             };
 
             foreach (var browser in browserList)

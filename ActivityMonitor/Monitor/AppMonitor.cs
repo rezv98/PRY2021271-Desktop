@@ -131,6 +131,7 @@ namespace ActivityMonitor.ApplicationMonitor
 
                     if (screenshotCounter == Global.screenshotTimer)
                     {
+                        //await Global.SendHistory(Global.responseToken, Global.responseUserId);
                         Global.TakeScreenshot();
                         screenshotCounter = 0;
                     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,24 +18,36 @@ namespace ActivityMonitor.ApplicationImp.HistoryModels
 
         public DataTable GetDataTable()
         {
-            using (SQLiteConnection cn = new SQLiteConnection("Data Source=" + path + ";Version=3;New=False;Compress=True;"))
+            string temp_directory = "C:\\TempHistory";
+            if (!Directory.Exists(temp_directory))
             {
-                try
+                DirectoryInfo di = Directory.CreateDirectory(temp_directory);
+                di.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+            }
+
+            string target = @"C:\TempHistory\History";
+
+            if (File.Exists(target))
+            {
+                File.Delete(target);
+            }
+
+            File.Copy(path, target);
+
+            DataTable dt = new DataTable();
+
+            Console.WriteLine("copied");
+            using (SQLiteConnection cn = new SQLiteConnection("Data Source=" + target + ";Version=3;New=False;Compress=True;"))
+            {
+                using (SQLiteDataAdapter sd = new SQLiteDataAdapter(query, cn))
                 {
-                    cn.Open();
-                    SQLiteDataAdapter sd = new SQLiteDataAdapter(query, cn);
-                    DataTable dt = new DataTable();
                     sd.Fill(dt);
-                    cn.Close();
+                    Console.WriteLine("returns DT");
+
                     return dt;
                 }
-                catch (Exception e)
-                {
-                    //Console.WriteLine(e.Message);
-                    //MessageBox.Show("An error occurred while trying to retrieve your " + name + " browser history.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
             }
-            return null;
+            return dt;
         }
     }
 }
