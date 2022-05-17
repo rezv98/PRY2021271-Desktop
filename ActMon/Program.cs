@@ -114,6 +114,11 @@ namespace ActMon
 
             appMon.Start();
 
+            if (DateTime.Now.Hour >= 18)
+            {
+                GracefulExit();
+            }
+
             //TODO: Start DB dumper anyway
             if (setDBConfig())
                 DBDumper.Start();
@@ -224,5 +229,4 @@ namespace ActMon
             }
         }
     }
-
 }

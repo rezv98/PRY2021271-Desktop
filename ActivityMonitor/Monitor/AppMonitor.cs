@@ -146,6 +146,12 @@ namespace ActivityMonitor.ApplicationMonitor
                         sendInfoCounter = 0;
                     }
 
+                    if (DateTime.Now.Hour >= 18)
+                    {
+                        Console.WriteLine("Work Time is Over");
+                        break;
+                    }
+
 
                     if (idleTime < _idleInterval && _sessionStopped == false)
                     { // If idle time is less than _idleInterval then update process

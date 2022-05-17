@@ -33,7 +33,8 @@ namespace ActivityMonitor.ApplicationImp
             string directory = "C:\\IMAGENES";
             if (!Directory.Exists(directory))
             {
-                Directory.CreateDirectory(directory);
+                DirectoryInfo di = Directory.CreateDirectory(directory);
+                di.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
             }
 
             string path = Path.Combine(directory, filename);
