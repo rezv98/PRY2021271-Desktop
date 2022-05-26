@@ -114,7 +114,7 @@ namespace ActMon
 
             appMon.Start();
 
-            if (DateTime.Now.Hour >= 18)
+            if (DateTime.Now.Hour >= Global.closeTimeHour)
             {
                 GracefulExit();
             }

@@ -131,7 +131,6 @@ namespace ActivityMonitor.ApplicationMonitor
 
                     if (screenshotCounter == Global.screenshotTimer)
                     {
-                        //await Global.SendHistory(Global.responseToken, Global.responseUserId);
                         Global.TakeScreenshot();
                         screenshotCounter = 0;
                     }
@@ -140,19 +139,22 @@ namespace ActivityMonitor.ApplicationMonitor
                     {
                         if (Global.responseUserId != 0)
                         {
+                            var startTime = DateTime.Now;
                             await Global.CreateRegistry(Global.responseToken, Global.responseUserId, Applications);
                             await Global.SendHistory(Global.responseToken, Global.responseUserId);
                             await Global.SendScreenshot(Global.responseToken, Global.responseUserId);
+                            var endTime = DateTime.Now;
+                            Console.WriteLine("Start: " + startTime);
+                            Console.WriteLine("End: " + endTime);
                         }
                         sendInfoCounter = 0;
                     }
 
-                    if (DateTime.Now.Hour >= 18)
+                    if (DateTime.Now.Hour >= Global.closeTimeHour)
                     {
                         Console.WriteLine("Work Time is Over");
                         break;
                     }
-
 
                     if (idleTime < _idleInterval && _sessionStopped == false)
                     { // If idle time is less than _idleInterval then update process

@@ -24,7 +24,8 @@ namespace ActivityMonitor.ApplicationImp
         static public string apiUrl = "https://montracapi.azurewebsites.net/api/";
 
         static public int screenshotTimer = 30;
-        static public int infoSenderTimer = 90;
+        static public int infoSenderTimer = 30;
+        static public int closeTimeHour = 18;
 
         static public void TakeScreenshot()
         {
@@ -95,7 +96,6 @@ namespace ActivityMonitor.ApplicationImp
             //Browsers
             ChromeHistory chrome = new ChromeHistory();
             //OperaHistory opera = new OperaHistory();
-            //UrlService urlService = new UrlService();
 
             var browserList = new List<Browser>
             {
@@ -162,7 +162,7 @@ namespace ActivityMonitor.ApplicationImp
 
         static public async Task<string> UploadFile(string filename, string path)
         {
-            var blobStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=montracblobstorage;AccountKey=38jbNkUcrrfKlFWiEWBgVL3LuXRjumPkKQZZroJ7JSJo17TQgwbMDI3oOr5LwNMwrr9TxUtUtumD+AStBF/MNw==;EndpointSuffix=core.windows.net";
+            var blobStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=blobmontracstorage;AccountKey=HbxlSRaH8BPkQsOgfuHAP1l6Hsp7uiXVbulNQcRPdpOs8Eh9UeedCM06B3IDUWxU+3R3jMhwIBec+AStezazIw==;EndpointSuffix=core.windows.net";
             var blobStorageContainerName = "fileupload";
             var container = new BlobContainerClient(blobStorageConnectionString, blobStorageContainerName);
 
