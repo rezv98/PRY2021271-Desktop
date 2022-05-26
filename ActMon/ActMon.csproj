@@ -194,38 +194,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\Extensions.cs" />
-    <Compile Include="Forms\ApplicationView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Forms\ApplicationView.Designer.cs">
-      <DependentUpon>ApplicationView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Database\DataDumper.cs" />
-    <Compile Include="Database\DB.cs" />
     <Compile Include="Forms\AppUpdater.cs" />
-    <Compile Include="Forms\FormHistory.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\FormHistory.designer.cs">
-      <DependentUpon>FormHistory.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\FormActivity.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\FormActivity.Designer.cs">
-      <DependentUpon>FormActivity.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\FormRegisterActivity.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\FormRegisterActivity.Designer.cs">
       <DependentUpon>FormRegisterActivity.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\FormSettings.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\FormSettings.Designer.cs">
-      <DependentUpon>FormSettings.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -235,29 +209,11 @@
       <DependentUpon>GlobalRes.resx</DependentUpon>
     </Compile>
     <Compile Include="SettingsManager\Settings.cs" />
-    <EmbeddedResource Include="Forms\ApplicationView.resx">
-      <DependentUpon>ApplicationView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FormHistory.resx">
-      <DependentUpon>FormHistory.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FormActivity.it-IT.resx">
-      <DependentUpon>FormActivity.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FormActivity.resx">
-      <DependentUpon>FormActivity.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormRegisterActivity.it-IT.resx">
       <DependentUpon>FormRegisterActivity.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormRegisterActivity.resx">
       <DependentUpon>FormRegisterActivity.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FormSettings.it-IT.resx">
-      <DependentUpon>FormSettings.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FormSettings.resx">
-      <DependentUpon>FormSettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.it-IT.resx" />
     <EmbeddedResource Include="Properties\Resources.resx">
