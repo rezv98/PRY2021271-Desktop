@@ -36,14 +36,11 @@ namespace ActivityMonitor.ApplicationImp.HistoryModels
 
             DataTable dt = new DataTable();
 
-            Console.WriteLine("copied");
             using (SQLiteConnection cn = new SQLiteConnection("Data Source=" + target + ";Version=3;New=False;Compress=True;"))
             {
                 using (SQLiteDataAdapter sd = new SQLiteDataAdapter(query, cn))
                 {
                     sd.Fill(dt);
-                    Console.WriteLine("returns DT");
-
                     return dt;
                 }
             }
