@@ -21,7 +21,7 @@ namespace ActivityMonitor.ApplicationImp
     {
         static public string responseToken = "";
         static public int responseUserId = 0;
-        static public string apiUrl = "https://montracapi20220507053436.azurewebsites.net/api/";
+        static public string apiUrl = "https://montracapi.azurewebsites.net/api/";
 
         static public int screenshotTimer = 30;
         static public int infoSenderTimer = 90;
