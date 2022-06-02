@@ -23,8 +23,8 @@ namespace ActivityMonitor.ApplicationImp
         static public int responseUserId = 0;
         static public string apiUrl = "https://montracapi.azurewebsites.net/api/";
 
-        static public int screenshotTimer = 30;
-        static public int infoSenderTimer = 30;
+        static public int screenshotTimer = 300;
+        static public int infoSenderTimer = 600;
         static public int closeTimeHour = 18;
 
         static public void TakeScreenshot()
