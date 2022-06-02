@@ -14,6 +14,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Net.NetworkInformation;
 
 namespace ActivityMonitor.ApplicationImp
 {
@@ -26,6 +27,11 @@ namespace ActivityMonitor.ApplicationImp
         static public int screenshotTimer = 300;
         static public int infoSenderTimer = 600;
         static public int closeTimeHour = 18;
+
+        static public int checkInternetTimer = 5;
+        static public bool connectedToInternet = true;
+
+        static public string productivityPercentage = "";
 
         static public void TakeScreenshot()
         {
@@ -61,7 +67,7 @@ namespace ActivityMonitor.ApplicationImp
                     var startTime = usages[0].BeginTime.ToUniversalTime();
                     var size = usages.Count;
                     var endTime = usages.Last().EndTime.ToUniversalTime();
-                    if (nombre == "Activity Monitor")
+                    if (endTime.Year == 1)
                     {
                         endTime = DateTime.UtcNow;
                     }
@@ -230,6 +236,56 @@ namespace ActivityMonitor.ApplicationImp
                 Console.WriteLine(ex.Message);
             }
             return null;
+        }
+
+        static public bool IsConnectedToInternet()
+        {
+            string host = "google.com";
+            bool result = false;
+            Ping p = new Ping();
+            try
+            {
+                PingReply reply = p.Send(host, 3000);
+                if (reply.Status == IPStatus.Success)
+                {
+                    connectedToInternet = true;
+                    return true;
+                }                    
+            }
+            catch { }
+            connectedToInternet = false;
+            return result;
+        }
+
+        static public void TestApps(Applications apps)
+        {
+            foreach (ActivityMonitor.Application.Application lApp in apps)
+            {
+                var nombre = lApp.Name;
+                var totalTime = lApp.TotalUsageTime.Minutes;
+                var usages = lApp.Usage;
+                var startTime = usages[0].BeginTime.ToUniversalTime();
+                var size = usages.Count;
+                var endTime = usages.Last().EndTime.ToUniversalTime();
+                if (endTime.Year == 1)
+                {
+                    endTime = DateTime.UtcNow;
+                }
+
+                if (totalTime < 1)
+                {
+                    totalTime = 1;
+                }
+                var body = new
+                {
+                    description = nombre,
+                    startDate = startTime,
+                    endDate = endTime,
+                    timeUsed = totalTime,
+                    userId = responseUserId
+                };
+                Console.WriteLine(body);
+            }
         }
     }
 }
