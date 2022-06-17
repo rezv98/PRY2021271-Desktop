@@ -13,10 +13,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Net.NetworkInformation;
 using System.Data;
 using System.Data.SQLite;
+using System.Windows;
 
 namespace ActivityMonitor.ApplicationImp
 {
@@ -26,8 +26,8 @@ namespace ActivityMonitor.ApplicationImp
         static public int responseUserId = 0;
         static public string apiUrl = "https://montracapi1.azurewebsites.net/api/";
 
-        static public int screenshotTimer = 25; //290
-        static public int infoSenderTimer = 60; //600
+        static public int screenshotTimer = 295; //295
+        static public int infoSenderTimer = 600; //600
         static public int closeTimeHour = 18;
 
         static public int checkInternetTimer = 5;
@@ -113,14 +113,18 @@ namespace ActivityMonitor.ApplicationImp
 
             using (SQLiteConnection sqlConnection = new SQLiteConnection(source))
             {
-                DirectoryInfo di0 = Directory.CreateDirectory(@"C:\temp0");
-                sqlConnection.Open();
-                sqlConnection.CreateCommand();
+                try
+                {
+                    sqlConnection.Open();
+                    sqlConnection.CreateCommand();
 
-                DirectoryInfo di1 = Directory.CreateDirectory(@"C:\temp1");
-                sqlDataAdapter = new SQLiteDataAdapter(chrome.query, sqlConnection);
-                sqlDataAdapter.Fill(dt);
-                DirectoryInfo di2 = Directory.CreateDirectory(@"C:\temp2");
+                    sqlDataAdapter = new SQLiteDataAdapter(chrome.query, sqlConnection);
+                    sqlDataAdapter.Fill(dt);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
             }
 
             Browser browser = new Browser() { Name = "Chrome", Data = dt };

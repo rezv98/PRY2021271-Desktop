@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace ActivityMonitor.ApplicationImp.HistoryModels
 {
@@ -33,23 +32,6 @@ namespace ActivityMonitor.ApplicationImp.HistoryModels
             }
 
             File.Copy(path, target);
-            
-
-            //DataTable dt = new DataTable();
-
-            //string source = @"Data Source=C:\TempHistory\History;Version=3;New=False;Compress=True;";
-
-            //using (SQLiteConnection cn = new SQLiteConnection(source))
-            //{
-            //    using (SQLiteDataAdapter sd = new SQLiteDataAdapter(query, cn))
-            //    {
-            //        DirectoryInfo di1 = Directory.CreateDirectory(@"C:\temp1");
-            //        sd.Fill(dt);
-            //        DirectoryInfo di2 = Directory.CreateDirectory(@"C:\temp2");
-            //        return dt;
-            //    }
-            //}
-            //return dt;
         }
     }
 }
