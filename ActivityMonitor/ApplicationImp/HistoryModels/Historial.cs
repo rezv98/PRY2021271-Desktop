@@ -16,9 +16,9 @@ namespace ActivityMonitor.ApplicationImp.HistoryModels
         public string query { get; set; }
         public string name { get; set; }
 
-        public DataTable GetDataTable()
+        public void GetDataTable()
         {
-            string temp_directory = "C:\\TempHistory";
+            string temp_directory = @"C:\TempHistory";
             if (!Directory.Exists(temp_directory))
             {
                 DirectoryInfo di = Directory.CreateDirectory(temp_directory);
@@ -33,18 +33,23 @@ namespace ActivityMonitor.ApplicationImp.HistoryModels
             }
 
             File.Copy(path, target);
+            
 
-            DataTable dt = new DataTable();
+            //DataTable dt = new DataTable();
 
-            using (SQLiteConnection cn = new SQLiteConnection("Data Source=" + target + ";Version=3;New=False;Compress=True;"))
-            {
-                using (SQLiteDataAdapter sd = new SQLiteDataAdapter(query, cn))
-                {
-                    sd.Fill(dt);
-                    return dt;
-                }
-            }
-            return dt;
+            //string source = @"Data Source=C:\TempHistory\History;Version=3;New=False;Compress=True;";
+
+            //using (SQLiteConnection cn = new SQLiteConnection(source))
+            //{
+            //    using (SQLiteDataAdapter sd = new SQLiteDataAdapter(query, cn))
+            //    {
+            //        DirectoryInfo di1 = Directory.CreateDirectory(@"C:\temp1");
+            //        sd.Fill(dt);
+            //        DirectoryInfo di2 = Directory.CreateDirectory(@"C:\temp2");
+            //        return dt;
+            //    }
+            //}
+            //return dt;
         }
     }
 }

@@ -134,20 +134,20 @@ namespace ActivityMonitor.ApplicationMonitor
                     if (checkInternetCounter == Global.checkInternetTimer)
                     {
                         var timeDiff = DateTime.UtcNow - Session.SessionStarted.ToUniversalTime();
-                        Console.WriteLine("Session duration: " + Math.Round(((timeDiff.TotalSeconds) / 60), 2) + " minutes");
-                        Console.WriteLine("Inactivity time: " + Math.Round((Session.IdleTime.TotalSeconds)/60, 2) + " minutes");
+                        //Console.WriteLine("Session duration: " + Math.Round(((timeDiff.TotalSeconds) / 60), 2) + " minutes");
+                        //Console.WriteLine("Inactivity time: " + Math.Round((Session.IdleTime.TotalSeconds)/60, 2) + " minutes");
                         var productivityP = Convert.ToInt32((1 - (Session.IdleTime.TotalSeconds / timeDiff.TotalSeconds)) * 100);
-                        Console.WriteLine("Productivity: " + productivityP + "%");
+                        //Console.WriteLine("Productivity: " + productivityP + "%");
 
                         bool previousInternetCheck = Global.connectedToInternet;
                         Global.IsConnectedToInternet();
                         if (previousInternetCheck == false && Global.connectedToInternet == true)
                         {
-                            await Global.CreateRegistry(Global.responseToken, Global.responseUserId, Applications);
                             await Global.SendHistory(Global.responseToken, Global.responseUserId);
+                            await Global.CreateRegistry(Global.responseToken, Global.responseUserId, Applications);
                             await Global.SendScreenshot(Global.responseToken, Global.responseUserId);
                         }
-                        Console.WriteLine(Global.connectedToInternet);
+                        //Console.WriteLine(Global.connectedToInternet);
                         checkInternetCounter = 0;
                     }
 
@@ -162,12 +162,12 @@ namespace ActivityMonitor.ApplicationMonitor
                         if (Global.responseUserId != 0 && Global.connectedToInternet == true)
                         {
                             var startTime = DateTime.Now;
-                            await Global.CreateRegistry(Global.responseToken, Global.responseUserId, Applications);
                             await Global.SendHistory(Global.responseToken, Global.responseUserId);
+                            await Global.CreateRegistry(Global.responseToken, Global.responseUserId, Applications);
                             await Global.SendScreenshot(Global.responseToken, Global.responseUserId);
                             var endTime = DateTime.Now;
-                            Console.WriteLine("Start: " + startTime);
-                            Console.WriteLine("End: " + endTime);
+                            //Console.WriteLine("Start: " + startTime);
+                            //Console.WriteLine("End: " + endTime);
                         }
                         sendInfoCounter = 0;
                     }

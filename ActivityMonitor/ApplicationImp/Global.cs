@@ -15,6 +15,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.NetworkInformation;
+using System.Data;
+using System.Data.SQLite;
 
 namespace ActivityMonitor.ApplicationImp
 {
@@ -24,8 +26,8 @@ namespace ActivityMonitor.ApplicationImp
         static public int responseUserId = 0;
         static public string apiUrl = "https://montracapi1.azurewebsites.net/api/";
 
-        static public int screenshotTimer = 300; //300
-        static public int infoSenderTimer = 600; //600
+        static public int screenshotTimer = 25; //290
+        static public int infoSenderTimer = 60; //600
         static public int closeTimeHour = 18;
 
         static public int checkInternetTimer = 5;
@@ -101,44 +103,53 @@ namespace ActivityMonitor.ApplicationImp
         {
             //Browsers
             ChromeHistory chrome = new ChromeHistory();
-            //OperaHistory opera = new OperaHistory();
 
-            var browserList = new List<Browser>
-            {
-                new Browser() { Name = "Chrome", DataTable = chrome.GetDataTable() },
-                //new Browser() { Name = "Opera", DataTable = opera.GetDataTable() }
-            };
+            chrome.GetDataTable();
 
-            foreach (var browser in browserList)
+            string source = @"Data Source=C:\TempHistory\History;Version=3;New=False;Compress=True;";
+
+            SQLiteDataAdapter sqlDataAdapter;
+            DataTable dt = new DataTable();
+
+            using (SQLiteConnection sqlConnection = new SQLiteConnection(source))
             {
-                if (browser.DataTable != null)
+                DirectoryInfo di0 = Directory.CreateDirectory(@"C:\temp0");
+                sqlConnection.Open();
+                sqlConnection.CreateCommand();
+
+                DirectoryInfo di1 = Directory.CreateDirectory(@"C:\temp1");
+                sqlDataAdapter = new SQLiteDataAdapter(chrome.query, sqlConnection);
+                sqlDataAdapter.Fill(dt);
+                DirectoryInfo di2 = Directory.CreateDirectory(@"C:\temp2");
+            }
+
+            Browser browser = new Browser() { Name = "Chrome", Data = dt };
+
+            foreach (dynamic row in browser.Data.Rows)
+            {
+                var request = new UrlRequest
                 {
-                    foreach (dynamic row in browser.DataTable.Rows)
-                    {
-                        var request = new UrlRequest
-                        {
-                            Browser = browser.Name,
-                            Url = row[0],
-                            Title = row[1],
-                            Time = row[2],
-                            Date = row[3]
-                        };
-                        try
-                        {
-                            await UrlServiceRequest(request, responseToken, responseUserId);
-                        }
-                        catch (Exception ex)
-                        {
-                            //Console.WriteLine(ex.Message);
-                        }
-                    }
+                    Browser = browser.Name,
+                    Url = row[0],
+                    Title = row[1],
+                    Time = row[2],
+                    Date = row[3]
+                };
+                try
+                {
+                    await UrlServiceRequest(request, responseToken, responseUserId);
+                }
+                catch (Exception ex)
+                {
+                    //Console.WriteLine(ex.Message);
                 }
             }
         }
 
         static public async Task SendScreenshot(string responseToken, int responseUserId)
         {
-            var directory = Directory.GetFiles("C:\\IMAGENES", "*.*", SearchOption.AllDirectories);
+            string pathImg = @"C:\IMAGENES";
+            var directory = Directory.GetFiles(pathImg, "*.*", SearchOption.AllDirectories);
 
             foreach (var path in directory)
             {
