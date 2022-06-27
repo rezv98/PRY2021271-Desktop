@@ -10,6 +10,6 @@ namespace ActivityMonitor.ApplicationImp.HistoryModels
     public class Browser
     {
         public string Name { get; set; }
-        public DataTable DataTable { get; set; }
+        public DataTable Data { get; set; }
     }
 }

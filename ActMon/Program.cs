@@ -100,7 +100,7 @@ namespace ActMon
 
         void Exit(object sender, EventArgs e)
         {
-            if (Global.responseUserId == 1)
+            if (Global.responseUserId == 1) //Cambiar por 1
             {
                 GracefulExit();
             }

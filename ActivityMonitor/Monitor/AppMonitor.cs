@@ -46,7 +46,7 @@ namespace ActivityMonitor.ApplicationMonitor
         {
             Data = new Applications();
             _appUpdater = new AppUpdater(Data);
-            _idleInterval = 30;
+            _idleInterval = 10;
 
             Session = new UserSession();
             
@@ -105,6 +105,7 @@ namespace ActivityMonitor.ApplicationMonitor
         {
             int screenshotCounter = 0;
             int sendInfoCounter = 0;
+            int checkInternetCounter = 0;
             _started = true;
             while (!_requestStop)
             {
@@ -129,6 +130,27 @@ namespace ActivityMonitor.ApplicationMonitor
                     var startTimeSpan = TimeSpan.Zero;
                     var periodTimeSpan = TimeSpan.FromSeconds(10);
 
+                    //Check if connected to internet
+                    if (checkInternetCounter == Global.checkInternetTimer)
+                    {
+                        var timeDiff = DateTime.UtcNow - Session.SessionStarted.ToUniversalTime();
+                        //Console.WriteLine("Session duration: " + Math.Round(((timeDiff.TotalSeconds) / 60), 2) + " minutes");
+                        //Console.WriteLine("Inactivity time: " + Math.Round((Session.IdleTime.TotalSeconds)/60, 2) + " minutes");
+                        var productivityP = Convert.ToInt32((1 - (Session.IdleTime.TotalSeconds / timeDiff.TotalSeconds)) * 100);
+                        //Console.WriteLine("Productivity: " + productivityP + "%");
+
+                        bool previousInternetCheck = Global.connectedToInternet;
+                        Global.IsConnectedToInternet();
+                        if (previousInternetCheck == false && Global.connectedToInternet == true)
+                        {
+                            await Global.SendHistory(Global.responseToken, Global.responseUserId);
+                            await Global.CreateRegistry(Global.responseToken, Global.responseUserId, Applications);
+                            await Global.SendScreenshot(Global.responseToken, Global.responseUserId);
+                        }
+                        //Console.WriteLine(Global.connectedToInternet);
+                        checkInternetCounter = 0;
+                    }
+
                     if (screenshotCounter == Global.screenshotTimer)
                     {
                         Global.TakeScreenshot();
@@ -137,15 +159,15 @@ namespace ActivityMonitor.ApplicationMonitor
 
                     if (sendInfoCounter == Global.infoSenderTimer)
                     {
-                        if (Global.responseUserId != 0)
+                        if (Global.responseUserId != 0 && Global.connectedToInternet == true)
                         {
                             var startTime = DateTime.Now;
-                            await Global.CreateRegistry(Global.responseToken, Global.responseUserId, Applications);
                             await Global.SendHistory(Global.responseToken, Global.responseUserId);
+                            await Global.CreateRegistry(Global.responseToken, Global.responseUserId, Applications);
                             await Global.SendScreenshot(Global.responseToken, Global.responseUserId);
                             var endTime = DateTime.Now;
-                            Console.WriteLine("Start: " + startTime);
-                            Console.WriteLine("End: " + endTime);
+                            //Console.WriteLine("Start: " + startTime);
+                            //Console.WriteLine("End: " + endTime);
                         }
                         sendInfoCounter = 0;
                     }
@@ -177,6 +199,7 @@ namespace ActivityMonitor.ApplicationMonitor
                     }
                     screenshotCounter++;
                     sendInfoCounter++;
+                    checkInternetCounter++;
                 }
                 catch (Exception ex)
                 {

@@ -13,7 +13,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Net.NetworkInformation;
+using System.Data;
+using System.Data.SQLite;
+using System.Windows;
 
 namespace ActivityMonitor.ApplicationImp
 {
@@ -21,11 +24,16 @@ namespace ActivityMonitor.ApplicationImp
     {
         static public string responseToken = "";
         static public int responseUserId = 0;
-        static public string apiUrl = "https://montracapi.azurewebsites.net/api/";
+        static public string apiUrl = "https://montracapi1.azurewebsites.net/api/";
 
-        static public int screenshotTimer = 300;
-        static public int infoSenderTimer = 600;
+        static public int screenshotTimer = 295; //295
+        static public int infoSenderTimer = 600; //600
         static public int closeTimeHour = 18;
+
+        static public int checkInternetTimer = 5;
+        static public bool connectedToInternet = true;
+
+        static public string productivityPercentage = "";
 
         static public void TakeScreenshot()
         {
@@ -61,7 +69,7 @@ namespace ActivityMonitor.ApplicationImp
                     var startTime = usages[0].BeginTime.ToUniversalTime();
                     var size = usages.Count;
                     var endTime = usages.Last().EndTime.ToUniversalTime();
-                    if (nombre == "Activity Monitor")
+                    if (endTime.Year == 1)
                     {
                         endTime = DateTime.UtcNow;
                     }
@@ -95,44 +103,57 @@ namespace ActivityMonitor.ApplicationImp
         {
             //Browsers
             ChromeHistory chrome = new ChromeHistory();
-            //OperaHistory opera = new OperaHistory();
 
-            var browserList = new List<Browser>
-            {
-                new Browser() { Name = "Chrome", DataTable = chrome.GetDataTable() },
-                //new Browser() { Name = "Opera", DataTable = opera.GetDataTable() }
-            };
+            chrome.GetDataTable();
 
-            foreach (var browser in browserList)
+            string source = @"Data Source=C:\TempHistory\History;Version=3;New=False;Compress=True;";
+
+            SQLiteDataAdapter sqlDataAdapter;
+            DataTable dt = new DataTable();
+
+            using (SQLiteConnection sqlConnection = new SQLiteConnection(source))
             {
-                if (browser.DataTable != null)
+                try
                 {
-                    foreach (dynamic row in browser.DataTable.Rows)
-                    {
-                        var request = new UrlRequest
-                        {
-                            Browser = browser.Name,
-                            Url = row[0],
-                            Title = row[1],
-                            Time = row[2],
-                            Date = row[3]
-                        };
-                        try
-                        {
-                            await UrlServiceRequest(request, responseToken, responseUserId);
-                        }
-                        catch (Exception ex)
-                        {
-                            //Console.WriteLine(ex.Message);
-                        }
-                    }
+                    sqlConnection.Open();
+                    sqlConnection.CreateCommand();
+
+                    sqlDataAdapter = new SQLiteDataAdapter(chrome.query, sqlConnection);
+                    sqlDataAdapter.Fill(dt);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+
+            Browser browser = new Browser() { Name = "Chrome", Data = dt };
+
+            foreach (dynamic row in browser.Data.Rows)
+            {
+                var request = new UrlRequest
+                {
+                    Browser = browser.Name,
+                    Url = row[0],
+                    Title = row[1],
+                    Time = row[2],
+                    Date = row[3]
+                };
+                try
+                {
+                    await UrlServiceRequest(request, responseToken, responseUserId);
+                }
+                catch (Exception ex)
+                {
+                    //Console.WriteLine(ex.Message);
                 }
             }
         }
 
         static public async Task SendScreenshot(string responseToken, int responseUserId)
         {
-            var directory = Directory.GetFiles("C:\\IMAGENES", "*.*", SearchOption.AllDirectories);
+            string pathImg = @"C:\IMAGENES";
+            var directory = Directory.GetFiles(pathImg, "*.*", SearchOption.AllDirectories);
 
             foreach (var path in directory)
             {
@@ -162,7 +183,7 @@ namespace ActivityMonitor.ApplicationImp
 
         static public async Task<string> UploadFile(string filename, string path)
         {
-            var blobStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=blobmontracstorage;AccountKey=HbxlSRaH8BPkQsOgfuHAP1l6Hsp7uiXVbulNQcRPdpOs8Eh9UeedCM06B3IDUWxU+3R3jMhwIBec+AStezazIw==;EndpointSuffix=core.windows.net";
+            var blobStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=blobmontracstorage1;AccountKey=t88W6V6GNK8Xyvt43hWYn2byZOOZ6v9SyI6OYraqkQxmEKKcmmar4NINdMMinHsOXXS8Ny5oRhAT+AStRf+LHw==;EndpointSuffix=core.windows.net";
             var blobStorageContainerName = "fileupload";
             var container = new BlobContainerClient(blobStorageConnectionString, blobStorageContainerName);
 
@@ -230,6 +251,56 @@ namespace ActivityMonitor.ApplicationImp
                 Console.WriteLine(ex.Message);
             }
             return null;
+        }
+
+        static public bool IsConnectedToInternet()
+        {
+            string host = "google.com";
+            bool result = false;
+            Ping p = new Ping();
+            try
+            {
+                PingReply reply = p.Send(host, 3000);
+                if (reply.Status == IPStatus.Success)
+                {
+                    connectedToInternet = true;
+                    return true;
+                }                    
+            }
+            catch { }
+            connectedToInternet = false;
+            return result;
+        }
+
+        static public void TestApps(Applications apps)
+        {
+            foreach (ActivityMonitor.Application.Application lApp in apps)
+            {
+                var nombre = lApp.Name;
+                var totalTime = lApp.TotalUsageTime.Minutes;
+                var usages = lApp.Usage;
+                var startTime = usages[0].BeginTime.ToUniversalTime();
+                var size = usages.Count;
+                var endTime = usages.Last().EndTime.ToUniversalTime();
+                if (endTime.Year == 1)
+                {
+                    endTime = DateTime.UtcNow;
+                }
+
+                if (totalTime < 1)
+                {
+                    totalTime = 1;
+                }
+                var body = new
+                {
+                    description = nombre,
+                    startDate = startTime,
+                    endDate = endTime,
+                    timeUsed = totalTime,
+                    userId = responseUserId
+                };
+                Console.WriteLine(body);
+            }
         }
     }
 }
